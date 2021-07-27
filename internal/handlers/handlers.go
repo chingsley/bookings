@@ -6,10 +6,10 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/tsawler/bookings-app/internal/config"
-	"github.com/tsawler/bookings-app/internal/forms"
-	"github.com/tsawler/bookings-app/internal/models"
-	"github.com/tsawler/bookings-app/internal/render"
+	"github.com/chingsley/bookings/internal/config"
+	"github.com/chingsley/bookings/internal/forms"
+	"github.com/chingsley/bookings/internal/models"
+	"github.com/chingsley/bookings/internal/render"
 )
 
 // Repo the repository used by the handlers
