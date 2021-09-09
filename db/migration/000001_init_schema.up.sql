@@ -40,9 +40,9 @@ CREATE TABLE "room_restrictions" (
   "id" bigserial PRIMARY KEY,
   "start_date" timestamptz NOT NULL,
   "end_date" timestamptz NOT NULL,
-  "room_id" bigint NOT NULL DEFAULT (1),
-  "reservation_id" bigint NOT NULL DEFAULT (1),
-  "restriction_id" bigint NOT NULL DEFAULT (1),
+  "room_id" bigint NOT NULL,
+  "reservation_id" bigint,
+  "restriction_id" bigint NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
