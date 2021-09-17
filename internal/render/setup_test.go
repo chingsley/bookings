@@ -27,10 +27,9 @@ func TestMain(m *testing.M) {
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	testApp.InfoLog = infoLog
 
-	errorLog := log.New(os.Stdout, "Error\t", log.Ldate|log.Ltime|log.Lshortfile)
+	errorLog := log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 	testApp.ErrorLog = errorLog
 
-	// set up the session
 	session = scs.New()
 	session.Lifetime = 24 * time.Hour
 	session.Cookie.Persist = true
@@ -51,7 +50,9 @@ func (tw *myWriter) Header() http.Header {
 	return h
 }
 
-func (tw *myWriter) WriteHeader(i int) {}
+func (tw *myWriter) WriteHeader(i int) {
+
+}
 
 func (tw *myWriter) Write(b []byte) (int, error) {
 	length := len(b)

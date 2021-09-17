@@ -1,11 +1,9 @@
 package helpers
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"runtime/debug"
-	"time"
 
 	"github.com/chingsley/bookings/internal/config"
 )
@@ -27,21 +25,3 @@ func ServerError(w http.ResponseWriter, err error) {
 	app.ErrorLog.Println(trace)
 	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 }
-
-func StrToDate(dateString string, w http.ResponseWriter) time.Time {
-	layout := "2006-01-02"
-	dateValue, err := time.Parse(layout, dateString)
-	if err != nil {
-		ServerError(w, errors.New("error while converting string to date"))
-	}
-	return dateValue
-}
-
-// func DateToStr(dateString string, w http.ResponseWriter) time.Time {
-// 	layout := "2006-01-02"
-// 	dateValue, err := time.Parse(layout, dateString)
-// 	if err != nil {
-// 		ServerError(w, errors.New("error while converting string to date"))
-// 	}
-// 	return dateValue
-// }
