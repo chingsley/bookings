@@ -48,13 +48,11 @@ func (f *Form) Has(field string) bool {
 
 // MinLength checks for string minimum length
 func (f *Form) MinLength(field string, length int) bool {
-	// for _, field := range fields {
 	x := f.Get(field)
 	if len(x) < length {
 		f.Errors.Add(field, fmt.Sprintf("This field must be at least %d characters long", length))
 		return false
 	}
-	// }
 	return true
 }
 
