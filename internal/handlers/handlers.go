@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -10,6 +11,7 @@ import (
 	"github.com/chingsley/bookings/internal/config"
 	"github.com/chingsley/bookings/internal/driver"
 	"github.com/chingsley/bookings/internal/forms"
+	"github.com/chingsley/bookings/internal/helpers"
 	"github.com/chingsley/bookings/internal/models"
 	"github.com/chingsley/bookings/internal/render"
 	"github.com/chingsley/bookings/internal/repository"
@@ -179,6 +181,24 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
+
+	htmlMessage := fmt.Sprintf(
+		`
+			<strong>Reservation Confirmation</strong><br>
+			Dear %s, <br>
+			this is to confirm your reservation from %s to %s.
+		`, reservation.FirstName, helpers.DateToStr(reservation.StartDate), helpers.DateToStr(reservation.EndDate),
+	)
+
+	// send notification - first to guest
+	msg := models.MailData{
+		To:      reservation.Email,
+		From:    "me@here.com",
+		Subject: "Reservation Confirmation",
+		Content: htmlMessage,
+	}
+
+	m.App.MailChan <- msg
 
 	m.App.Session.Put(r.Context(), "reservation", reservation)
 
