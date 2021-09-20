@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -10,6 +11,7 @@ import (
 	"github.com/chingsley/bookings/internal/config"
 	"github.com/chingsley/bookings/internal/driver"
 	"github.com/chingsley/bookings/internal/forms"
+	"github.com/chingsley/bookings/internal/helpers"
 	"github.com/chingsley/bookings/internal/models"
 	"github.com/chingsley/bookings/internal/render"
 	"github.com/chingsley/bookings/internal/repository"
@@ -131,6 +133,13 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	room, err := m.DB.GetRoomByID(roomID)
+	if err != nil {
+		m.App.Session.Put(r.Context(), "error", "Failed to get room by ID")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
+
 	reservation := models.Reservation{
 		FirstName: r.Form.Get("first_name"),
 		LastName:  r.Form.Get("last_name"),
@@ -139,6 +148,7 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 		StartDate: startDate,
 		EndDate:   endDate,
 		RoomID:    roomID,
+		Room:      room,
 	}
 
 	form := forms.New(r.PostForm)
@@ -179,6 +189,42 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
+
+	htmlMessage := fmt.Sprintf(
+		`
+			<strong>Reservation Confirmation</strong><br>
+			Dear %s, <br>
+			this is to confirm your reservation from %s to %s.
+		`, reservation.FirstName, helpers.DateToStr(reservation.StartDate), helpers.DateToStr(reservation.EndDate),
+	)
+
+	// send notification - first to guest
+	msg := models.MailData{
+		To:      reservation.Email,
+		From:    "bookings@here.com",
+		Subject: "Reservation Confirmation",
+		Content: htmlMessage,
+	}
+
+	m.App.MailChan <- msg
+
+	htmlMessage = fmt.Sprintf(
+		`
+			<strong>Reservation Notification</strong><br>
+			Dear %s, <br>
+			A reservation has been made for room: %s from %s to %s.
+		`, "Chingsley", reservation.Room.RoomName, helpers.DateToStr(reservation.StartDate), helpers.DateToStr(reservation.EndDate),
+	)
+
+	// send notification - second to property owner
+	msg = models.MailData{
+		To:      "chingsleychinonso@gmail.com",
+		From:    "bookings@here.com",
+		Subject: "Reservation Confirmation",
+		Content: htmlMessage,
+	}
+
+	m.App.MailChan <- msg
 
 	m.App.Session.Put(r.Context(), "reservation", reservation)
 
