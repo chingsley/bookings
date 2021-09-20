@@ -133,6 +133,13 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	room, err := m.DB.GetRoomByID(roomID)
+	if err != nil {
+		m.App.Session.Put(r.Context(), "error", "Failed to get room by ID")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
+
 	reservation := models.Reservation{
 		FirstName: r.Form.Get("first_name"),
 		LastName:  r.Form.Get("last_name"),
@@ -141,6 +148,7 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 		StartDate: startDate,
 		EndDate:   endDate,
 		RoomID:    roomID,
+		Room:      room,
 	}
 
 	form := forms.New(r.PostForm)
@@ -193,7 +201,25 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	// send notification - first to guest
 	msg := models.MailData{
 		To:      reservation.Email,
-		From:    "me@here.com",
+		From:    "bookings@here.com",
+		Subject: "Reservation Confirmation",
+		Content: htmlMessage,
+	}
+
+	m.App.MailChan <- msg
+
+	htmlMessage = fmt.Sprintf(
+		`
+			<strong>Reservation Notification</strong><br>
+			Dear %s, <br>
+			A reservation has been made for room: %s from %s to %s.
+		`, "Chingsley", reservation.Room.RoomName, helpers.DateToStr(reservation.StartDate), helpers.DateToStr(reservation.EndDate),
+	)
+
+	// send notification - second to property owner
+	msg = models.MailData{
+		To:      "chingsleychinonso@gmail.com",
+		From:    "bookings@here.com",
 		Subject: "Reservation Confirmation",
 		Content: htmlMessage,
 	}
