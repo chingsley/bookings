@@ -29,7 +29,7 @@ func Auth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !helpers.IsAuthenticated(r) {
 			session.Put(r.Context(), "error", "Access denied, please login first")
-			http.Redirect(w, r, "/users/login", http.StatusSeeOther)
+			http.Redirect(w, r, "/user/login", http.StatusSeeOther)
 			return
 		}
 		next.ServeHTTP(w, r)
