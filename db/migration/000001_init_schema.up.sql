@@ -32,6 +32,7 @@ CREATE TABLE "reservations" (
   "start_date" timestamptz NOT NULL,
   "end_date" timestamptz NOT NULL,
   "room_id" bigint NOT NULL DEFAULT (1),
+  "processed" bigint NOT NULL DEFAULT (0),
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
