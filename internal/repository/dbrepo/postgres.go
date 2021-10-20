@@ -393,7 +393,7 @@ func (m *postgresDBRepo) UpdateReservation(r models.Reservation) error {
 
 	query := `update reservations
 						set first_name = $1, last_name = $2, email = $3, phone = $4, updated_at = $5
-						where id = $5
+						where id = $6
 `
 
 	_, err := m.DB.ExecContext(ctx, query, r.FirstName, r.LastName, r.Email, r.Phone, time.Now(), r.ID)
