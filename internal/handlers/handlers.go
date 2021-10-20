@@ -17,6 +17,7 @@ import (
 	"github.com/chingsley/bookings/internal/render"
 	"github.com/chingsley/bookings/internal/repository"
 	"github.com/chingsley/bookings/internal/repository/dbrepo"
+	"github.com/go-chi/chi"
 )
 
 // Repo the repository used by the handlers
@@ -635,7 +636,6 @@ func (m *Repository) AdminPostShowReservation(w http.ResponseWriter, r *http.Req
 	if err != nil {
 		helpers.LogError(err)
 		m.App.Session.Put(r.Context(), "error", "Sorry, something went wrong")
-		// http.Redirect(w, r, "/", http.StatusSeeOther) // if I redirect to a different page, the error message appears, but if I redirect to the same page, it doesn't. Kindly debug
 		http.Redirect(w, r, fmt.Sprintf("/admin/reservations/%s/%d", src, res.ID), http.StatusSeeOther)
 		return
 	}
@@ -647,4 +647,13 @@ func (m *Repository) AdminPostShowReservation(w http.ResponseWriter, r *http.Req
 // AdminReservationsCalendar displays reservation calendar
 func (m *Repository) AdminReservationsCalendar(w http.ResponseWriter, r *http.Request) {
 	render.Template(w, r, "admin-reservations-calendar.page.tmpl", &models.TemplateData{})
+}
+
+// AdminProcessReservation marks a reservation as processed
+func (m *Repository) AdminProcessReservation(w http.ResponseWriter, r *http.Request) {
+	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+	src := chi.URLParam(r, "src")
+	_ = m.DB.UpdateProcessedForReservation(id, 1)
+	m.App.Session.Put(r.Context(), "flash", "Suuccessfully marked reservation as processed")
+	http.Redirect(w, r, fmt.Sprintf("/admin/reservations-%s", src), http.StatusSeeOther)
 }
