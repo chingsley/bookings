@@ -27,7 +27,7 @@ CREATE TABLE "reservations" (
   "id" bigserial PRIMARY KEY,
   "first_name" varchar NOT NULL,
   "last_name" varchar NOT NULL,
-  "email" VARCHAR (300) UNIQUE NOT NULL,
+  "email" VARCHAR (300) NOT NULL,
   "phone" varchar NOT NULL,
   "start_date" timestamptz NOT NULL,
   "end_date" timestamptz NOT NULL,
@@ -50,7 +50,7 @@ CREATE TABLE "room_restrictions" (
 
 ALTER TABLE "reservations" ADD FOREIGN KEY ("room_id") REFERENCES "rooms" ("id");
 ALTER TABLE "room_restrictions" ADD FOREIGN KEY ("room_id") REFERENCES "rooms" ("id");
-ALTER TABLE "room_restrictions" ADD FOREIGN KEY ("reservation_id") REFERENCES "reservations" ("id");
+ALTER TABLE "room_restrictions" ADD FOREIGN KEY ("reservation_id") REFERENCES "reservations" ("id") ON DELETE CASCADE;
 ALTER TABLE "room_restrictions" ADD FOREIGN KEY ("restriction_id") REFERENCES "restrictions" ("id");
 
 
