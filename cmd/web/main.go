@@ -37,7 +37,7 @@ func main() {
 	fmt.Println("Starting mail listener...")
 	listenForMail()
 
-	fmt.Println(fmt.Sprintf("Staring application on port %s", portNumber))
+	fmt.Println(fmt.Sprintf("Starting application on port %s", portNumber))
 
 	srv := &http.Server{
 		Addr:    portNumber,
@@ -51,11 +51,12 @@ func main() {
 }
 
 func run() (*driver.DB, error) {
-	// what am I going to put in the session
+	// what am I going to put in the session (dataTypes that would be in the session)
 	gob.Register(models.Reservation{})
 	gob.Register(models.User{})
 	gob.Register(models.Room{})
 	gob.Register(models.Restriction{})
+	gob.Register(map[string]int{})
 
 	mailChan := make(chan models.MailData)
 	app.MailChan = mailChan
@@ -79,7 +80,7 @@ func run() (*driver.DB, error) {
 	app.Session = session
 
 	// connect to database
-	log.Println("Establishing to database; Please wait...")
+	log.Println("Establishing connection to database; Please wait...")
 	db, err := driver.ConnectSQL("host=localhost port=5432 dbname=bookings user=postgres password=postgres")
 	if err != nil {
 		log.Fatal("Failed to connect to the database!")
